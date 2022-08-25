@@ -2,7 +2,7 @@
   "name": "node-copyfile",
   "version": "1.0.0",
   "description": "npm package for copying files",
-  "main": "./lib/src/index.js",
+  "main": "./lib/index.js",
   "files": [
     "lib/**/*"
   ],
