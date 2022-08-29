@@ -8,8 +8,17 @@ import {
 } from "./interface";
 
 const copyfileAsync = promisify(copyFile);
-const accessAsync = promisify(access);
-const mkdirAsync = promisify(mkdir);
+const mkdirAsync = promisify<
+  string,
+  { recursive?: boolean },
+  any
+>(mkdir);
+
+const accessAsync = (path: string) => {
+  return new Promise(resolve =>
+    access(path, err => resolve(err === null))
+  );
+};
 
 /**
  * Get path and file name of files which was matched pattern
@@ -42,9 +51,11 @@ async function copyFileEnhanceAsync(
   const fileInfos = await getFileInfosAsync(src);
 
   // Create if directory or path is not existed
-  const isExist = await accessAsync(dest);
+  const isExist = await accessAsync(
+    resolve(process.cwd(), dest)
+  );
   if (!isExist) {
-    await mkdirAsync(dest);
+    await mkdirAsync(dest, { recursive: true });
   }
   return fileInfos.map(
     ({ filepath, filename }) => {
@@ -60,9 +71,7 @@ async function copyFileEnhanceAsync(
  * Copy files batch
  * @param {*} options
  */
-export default function copyfileBatch(
-  options: Option[]
-) {
+function copyfileBatch(options: Option[]) {
   const promises = options.reduce(
     (defers, { src, dest }) => {
       const srcset = Array.isArray(src)
@@ -73,7 +82,7 @@ export default function copyfileBatch(
         ...srcset.map(pattern => {
           return copyFileEnhanceAsync(
             pattern,
-            resolve(__dirname, dest)
+            resolve(process.cwd(), dest)
           );
         })
       );
@@ -84,3 +93,9 @@ export default function copyfileBatch(
 
   return Promise.all(promises);
 }
+
+export {
+  type Option,
+  type FileInfoType,
+  copyfileBatch,
+};

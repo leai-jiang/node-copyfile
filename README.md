@@ -1,25 +1,32 @@
 # node-copyfile
 
 > copy files util
+
 ## Usage
+
 `npm install node-copyfile -D`
 
 ```ts
-import copyfiles from 'node-copyfile';
+import {
+  copyFileBatch,
+  type Option,
+} from "node-copyfile";
 
 async function copy() {
-  await copyfiles([
+  const options: Option[] = [
     {
       src: ["src/js/*.js", "src/css/*.css"],
       dest: "dist",
-    }, 
+    },
     {
       src: "src/public/index.html",
       dest: "dist/public",
     },
-  ]);
+  ];
+  await copyFileBatch(options);
 }
 ```
+
 ```
 - dist
   - css
